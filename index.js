@@ -8,15 +8,21 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
   apiKey: process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
-    'HTTP-Referer': 'http://localhost:5500/', // frontend URL
+    'HTTP-Referer': 'http://localhost:5000/', // frontend URL
     'X-Title': 'AI-Based Health Monitor',
   },
+});
+
+app.get('/', (req, res) => {
+  res.render('index', { title: 'AI-Based Health Monitor' });
 });
 
 app.post('/api/chat', async (req, res) => {
