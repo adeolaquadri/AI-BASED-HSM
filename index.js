@@ -16,7 +16,7 @@ const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
   apiKey: process.env.OPENROUTER_API_KEY,
   defaultHeaders: {
-    'HTTP-Referer': 'http://localhost:5000/', // frontend URL
+    'HTTP-Referer': 'https://ai-health-specialist.zeabur.app', // frontend URL
     'X-Title': 'AI-Based Health Monitor',
   },
 });
