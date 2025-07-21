@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Specialist</title>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      :root {
+    --primary-color: #3a7bd5;
+    --secondary-color: #00d2ff;
+    --accent-color: #4fc3f7;
+    --ai-message-color: #f0f8ff;
+    --user-message-color: #e3f2fd;
+    --warning-color: #ff9800;
+    --error-color: #f44336;
+    --success-color: #4caf50;
+    --text-color: #333;
+    --light-text: #777;
+    --bg-color: #f5f9ff;
+    --card-bg: #ffffff;
+    --results-bg: #f8f9fa;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+.logo i {
+    margin-right: 10px;
+    font-size: 28px;
+    color: var(--primary-color);
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--light-text);
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-indicator.active {
+    background-color: var(--success-color);
+    box-shadow: 0 0 8px var(--success-color);
+}
+
+.chat-container {
+    background-color: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.ai-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+.ai-info h3 {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.ai-info p {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.typing-indicator {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    display: none;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.chat-messages {
+    height: 250px;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: var(--card-bg);
+}
+
+.message {
+    display: flex;
+    margin-bottom: 15px;
+    max-width: 80%;
+}
+
+.message-content {
+    padding: 12px 15px;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: 11px;
+    color: var(--light-text);
+    align-self: flex-end;
+    margin: 0 10px;
+    white-space: nowrap;
+}
+
+.ai-message {
+    align-self: flex-start;
+}
+
+.ai-message .message-content {
+    background-color: var(--ai-message-color);
+    border-top-left-radius: 5px;
+}
+
+.user-message {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.user-message .message-content {
+    background-color: var(--user-message-color);
+    border-top-right-radius: 5px;
+}
+
+.quick-options {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 20px 10px;
+    gap: 10px;
+}
+
+.quick-option {
+    background-color: var(--ai-message-color);
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-option:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.input-area {
+    display: flex;
+    padding: 15px 20px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #eee;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    outline: none;
+    font-size: 15px;
+    transition: border 0.3s;
+}
+
+.input-area input:focus {
+    border-color: var(--primary-color);
+}
+
+.input-area button {
+    width: 50px;
+    height: 50px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.input-area button:hover {
+    background-color: var(--secondary-color);
+}
+
+.disclaimer {
+    padding: 10px 20px;
+    background-color: #fff8e1;
+    font-size: 12px;
+    color: var(--light-text);
+    text-align: center;
+    border-top: 1px solid #ffecb3;
+}
+
+.disclaimer i {
+    color: var(--warning-color);
+    margin-right: 5px;
+}
+
+.assessment-results {
+    background-color: var(--results-bg);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.results-header h3 {
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+}
+
+.results-header h3 i {
+    margin-right: 10px;
+}
+
+.results-header button {
+    background: none;
+    border: none;
+    color: var(--light-text);
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.results-header button:hover {
+    color: var(--error-color);
+}
+
+.results-header button i {
+    margin-right: 5px;
+}
+
+.results-content {
+    min-height: 150px;
+}
+
+.risk-indicator {
+    height: 10px;
+    background: linear-gradient(to right, var(--success-color), var(--warning-color), var(--error-color));
+    border-radius: 5px;
+    margin: 10px 0;
+    position: relative;
+}
+
+.risk-marker {
+    position: absolute;
+    top: -5px;
+    width: 3px;
+    height: 20px;
+    background-color: var(--text-color);
+    transform: translateX(-50%);
+}
+
+.symptom-list {
+    list-style-type: none;
+    margin: 15px 0;
+}
+
+.symptom-list li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
+}
+
+.symptom-list li:last-child {
+    border-bottom: none;
+}
+
+.symptom-severity {
+    font-weight: bold;
+}
+
+.low-severity {
+    color: var(--success-color);
+}
+
+.medium-severity {
+    color: var(--warning-color);
+}
+
+.high-severity {
+    color: var(--error-color);
+}
+
+.recommendation-card {
+    background-color: white;
+    border-left: 4px solid var(--primary-color);
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 5px 5px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.recommendation-card h4 {
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+
+.assessment-score {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin: 15px 0;
+}
+
+.likely {
+    color: var(--error-color);
+}
+
+.possible {
+    color: var(--warning-color);
+}
+
+.unlikely {
+    color: var(--success-color);
+}
+
+footer{
+    background-color: var(--primary-color); 
+    color:#fff;
+    padding:5px;
+    text-align: center;
+}
+
+
+@keyframes messageAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message {
+    animation: messageAppear 0.3s ease-out;
+}
+.clear-history-btn {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    margin: 10px auto;
+    display: block;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.clear-history-btn:hover {
+    background-color: #d32f2f;
+}
+
+@media (max-width: 768px) {
+    .chat-messages {
+        height: 300px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+    
+    .quick-options {
+        flex-direction: column;
+    }
+}
+.clear-btn {
+  margin: 10px auto;
+  display: block;
+  padding: 8px 16px;
+  background-color: #c62828;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.clear-btn:hover {
+  background-color: #b71c1c;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-stethoscope"></i>
+                <span>AI Health Specialist</span>
+            </div>
+            <div class="status">
+                <div class="status-indicator active"></div>
+                <span>Online</span>
+            </div>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="ai-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="ai-info">
+                    <h3>Dr. HealthAI</h3>
+                    <p>Specialized in common ailments assessment</p>
+                    <p>Created By Lukman Abdulkabir Bolarinwa</p>
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <div class="message-content">
+                        <p>Hello! I'm Dr. HealthAI, specialized in assessing common health conditions. I can help evaluate symptoms for: Common Cold/Flu, Malaria, Typhoid, Hypertension risk, COVID-19, Migraines, UTIs, and Asthma. What would you like to discuss today?</p>
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+            
+            <div class="quick-options" id="quickOptions">
+                <button class="quick-option" onclick="startSymptomAssessment('cold')">Cold/Flu</button>
+                <button class="quick-option" onclick="startSymptomAssessment('malaria')">Malaria</button>
+                <button class="quick-option" onclick="startSymptomAssessment('typhoid')">Typhoid</button>
+                <button class="quick-option" onclick="startSymptomAssessment('hypertension')">Hypertension</button>
+                <button class="quick-option" onclick="startSymptomAssessment('covid')">COVID-19</button>
+                <button class="quick-option" onclick="startSymptomAssessment('migraine')">Migraine</button>
+                <button class="quick-option" onclick="startSymptomAssessment('uti')">UTI</button>
+                <button class="quick-option" onclick="startSymptomAssessment('asthma')">Asthma</button>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Describe your symptoms or select a condition above..." autocomplete="off">
+                <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+                <button id="clearChatBtn" class="clear-btn">Clear Chat</button>
+
+            </div>
+            
+            <div class="disclaimer">
+                <p><i class="fas fa-exclamation-triangle"></i> This is not a substitute for professional medical diagnosis. Always consult a doctor for proper evaluation.</p>
+            </div>
+        </div>
+        
+        <!-- <div class="assessment-results" id="assessmentResults">
+            <div class="results-header">
+                <h3><i class="fas fa-clipboard-check"></i> Assessment Results</h3>
+                <button id="clearResults"><i class="fas fa-trash-alt"></i> Clear</button>
+            </div>
+            <div class="results-content" id="resultsContent">
+                <p>No assessment completed yet. Select a condition to begin.</p>
+            </div>
+        </div> -->
+    </div>
+    <footer>
+        <p>Designed By Lukman Abdulkabir Bolarinwa </p>
+    </footer>
+    
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('userInput');
+  const sendButton = document.getElementById('sendButton');
+  const chatBox = document.getElementById('chatMessages');
+  const typingIndicator = document.getElementById('typingIndicator');
+
+  // Send message when button is clicked
+  sendButton.addEventListener('click', handleSendMessage);
+
+  // Send message on Enter key
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  });
+
+  async function handleSendMessage() {
+    const userMessage = input.value.trim();
+    if (!userMessage) return;
+
+    appendMessage('user', userMessage);
+    input.value = '';
+    showTypingIndicator(true);
+
+    try {
+      const res = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage }),
+      });
+
+      const data = await res.json();
+      showTypingIndicator(false);
+
+      if (data.reply) {
+        appendMessage('ai', data.reply);
+      } else {
+        appendMessage('ai', 'Sorry, I couldn’t understand that.');
+      }
+    } catch (error) {
+      console.error(error);
+      showTypingIndicator(false);
+      appendMessage('ai', 'Error: Unable to contact the AI server.');
+    }
+  }
+
+  
+
+  function appendMessage(role, text) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${role === 'user' ? 'user-message' : 'ai-message'}`;
+
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'message-content';
+  contentDiv.innerText = text;
+
+  const timeDiv = document.createElement('div');
+  timeDiv.className = 'message-time';
+  const now = new Date();
+  timeDiv.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  messageDiv.appendChild(contentDiv);
+  messageDiv.appendChild(timeDiv);
+
+  chatBox.appendChild(messageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // ✅ Save to localStorage
+  saveMessageToStorage(role, text);
+}
+function saveMessageToStorage(role, text) {
+  const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+  messages.push({ role, text });
+  localStorage.setItem('chatMessages', JSON.stringify(messages));
+}
+function loadMessagesFromStorage() {
+  const messages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+  messages.forEach(msg => {
+    appendMessage(msg.role, msg.text);
+  });
+}
+
+// 🚀 Call it when DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+  loadMessagesFromStorage();
+});
+
+  document.getElementById('clearChatBtn').addEventListener('click', () => {
+      localStorage.removeItem('chatMessages');
+      chatBox.innerHTML = '';
+});
+
+
+  function showTypingIndicator(show) {
+    typingIndicator.style.display = show ? 'flex' : 'none';
+  }
+});
+</script>
+
+
+</body>
+</html>
